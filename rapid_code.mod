@@ -1,0 +1,92 @@
+MODULE Module1
+    VAR socketdev serverSocket;
+    VAR socketdev clientSocket;
+    VAR string axis1:="";
+    VAR string axis2:="";
+    VAR string axis3:="";
+    VAR string axis4:="";
+    VAR string axis5:="";
+    VAR string axis6:="";
+    VAR string axis7:="";
+    VAR bool ok;
+    VAR string str1;
+    VAR string data;
+    VAR num length;
+    VAR num l_j1;
+    VAR num l_j2;
+    VAR num l_j3;
+    VAR num l_j4;
+    VAR num l_j5;
+    VAR num l_j6;
+    VAR num l_j7;
+    VAR num l_j1_array{500};
+    VAR num l_j2_array{500};
+    VAR num l_j3_array{500};
+    VAR num l_j4_array{500};
+    VAR num l_j5_array{500}; 
+    VAR num l_j6_array{500};
+    VAR num l_j7_array{500};
+    VAR bool flag:=TRUE;
+    VAR pos pos1;
+    VAR num x;
+    VAR num y;
+    VAR num z;
+    VAR string str3;
+    VAR string str4;
+    PERS jointtarget jpos:=[[-79.4554,-68.163,-52.503,-88,68.2032,-113.397],[80,9E+9,9E+9,9E+9,9E+9,9E+9]];
+    PROC main()
+        SocketCreate clientSocket;
+        !WaitTime(1);
+        SocketConnect clientSocket,"192.168.1.35",9250;
+        SocketReceive clientSocket\Str:=str1;
+        ok:=StrToVal(str1,length);
+        FOR i FROM 1 TO length DO
+            SocketSend clientSocket\Str:="start";
+            SocketReceive clientSocket\Str:=axis1;
+            ok:=StrToVal(axis1,l_j1);
+            l_j1_array{i}:=l_j1;
+            SocketSend clientSocket\Str:="l1_received";
+            SocketReceive clientSocket\Str:=axis2;
+            ok:=StrToVal(axis2,l_j2);
+            l_j2_array{i}:=l_j2;
+            SocketSend clientSocket\Str:="l2_received";
+            SocketReceive clientSocket\Str:=axis3;
+            ok:=StrToVal(axis3,l_j3);
+            l_j3_array{i}:=l_j3;
+            SocketSend clientSocket\Str:="l3_received";
+            SocketReceive clientSocket\Str:=axis4;
+            ok:=StrToVal(axis4,l_j4);
+            l_j4_array{i}:=l_j4;
+            SocketSend clientSocket\Str:="l4_received";
+            SocketReceive clientSocket\Str:=axis5;
+            ok:=StrToVal(axis5,l_j5);
+            l_j5_array{i}:=l_j5;
+            SocketSend clientSocket\Str:="l5_received";
+            SocketReceive clientSocket\Str:=axis6;
+            ok:=StrToVal(axis6,l_j6);
+            l_j6_array{i}:=l_j6;
+            SocketSend clientSocket\Str:="l6_received";
+            SocketReceive clientSocket\Str:=axis7;
+            ok:=StrToVal(axis7,l_j7);
+            l_j7_array{i}:=l_j7;
+        ENDFOR
+        FOR i FROM 1 TO length DO
+            jpos.robax.rax_1:=l_j1_array{i};
+            jpos.robax.rax_2:=l_j2_array{i};
+            jpos.robax.rax_3:=l_j4_array{i};
+            jpos.robax.rax_4:=l_j5_array{i};
+            jpos.robax.rax_5:=l_j6_array{i};
+            jpos.robax.rax_6:=l_j7_array{i}; 
+            jpos.extax.eax_a:=l_j3_array{i};
+            MoveAbsJ jpos,v500,fine,tool0;
+            pos1 := CPos();
+            x:=pos1.x;
+            y:=pos1.y;
+            z:=pos1.z-110; 
+            str3:="["+ValToStr(x)+","+ValToStr(y)+","+ValToStr(z)+"]";
+            TPWrite str3;
+            SocketSend clientSocket\Str:=str3;
+            SocketReceive clientSocket\Str:=str4;
+        ENDFOR
+    ENDPROC
+ENDMODULE
